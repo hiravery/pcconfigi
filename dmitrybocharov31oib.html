@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroCore PC Builder — Конфигуратор ПК | DmitryBocharov31oib</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-base: #06070a;
+      --bg-surface: #0c0e14;
+      --bg-card: rgba(18, 22, 33, 0.65);
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-highlight: rgba(0, 240, 255, 0.35);
+      --cyan-neon: #00f0ff;
+      --purple-neon: #8b5cf6;
+      --emerald-neon: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      outline: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .DmitryBocharov31oib-font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Фоновые градиенты и сетка */
+    .DmitryBocharov31oib-grid-bg {
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 65%, rgba(139, 92, 246, 0.08) 0%, transparent 45%),
+        linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+    }
+
+    /* Стеклянные панели Glassmorphism */
+    .DmitryBocharov31oib-glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .DmitryBocharov31oib-glass:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .DmitryBocharov31oib-glass-active {
+      border-color: var(--cyan-neon) !important;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.15);
+    }
+
+    /* Ползунок стилизация */
+    input[type=range].DmitryBocharov31oib-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    input[type=range].DmitryBocharov31oib-slider::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #1e2433;
+      border-radius: 9999px;
+      border: none;
+    }
+
+    input[type=range].DmitryBocharov31oib-slider::-webkit-slider-thumb {
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #00f0ff;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -8px;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.8), 0 0 2px #fff;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    input[type=range].DmitryBocharov31oib-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #ffffff;
+    }
+
+    /* Кастомный скроллбар */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090a0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2738;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f0ff;
+    }
+
+    /* Анимация пульса неона */
+    @keyframes DmitryBocharov31oib-pulse-glow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .DmitryBocharov31oib-pulse {
+      animation: DmitryBocharov31oib-pulse-glow 3s infinite ease-in-out;
+    }
+
+    /* Тоаст уведомлений */
+    #DmitryBocharov31oib-toast {
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #DmitryBocharov31oib-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="DmitryBocharov31oib-grid-bg text-slate-200 flex flex-col justify-between selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- Header -->
+  <header class="DmitryBocharov31oib-header sticky top-0 z-40 border-b border-white/5 bg-[#06070a]/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center p-0.5 shadow-[0_0_20px_rgba(0,240,255,0.3)]">
+          <div class="w-full h-full bg-[#08090f] rounded-[10px] flex items-center justify-center text-cyan-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <span class="DmitryBocharov31oib-font-display text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            AEROCORE <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950/80 text-cyan-400 border border-cyan-500/30 font-medium tracking-wide">STUDIO 3.1</span>
+          </span>
+          <span class="block text-[11px] text-slate-400 font-medium tracking-wider uppercase">Конфигуратор нового поколения</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div class="hidden md:flex items-center space-x-2 text-xs text-slate-400 bg-white/[0.03] border border-white/5 px-3 py-1.5 rounded-lg">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>База 2026 активна</span>
+        </div>
+        <button onclick="DmitryBocharov31oib_resetToDefaults()" class="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg border border-white/5 hover:border-white/20 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Сброс
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="DmitryBocharov31oib-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    
+    <!-- Hero Title -->
+    <div class="mb-10 text-center md:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-medium mb-3">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        AI-Powered Hardware Architecture
+      </div>
+      <h1 class="DmitryBocharov31oib-font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+        Подбор компьютера <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">под задачи и бюджет</span>
+      </h1>
+      <p class="mt-2 text-sm sm:text-base text-slate-400 max-w-2xl">
+        Задайте точные технические ограничения, выберите целевую платформу и требования — система рассчитает идеальный баланс без узких мест.
+      </p>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- LEFT COLUMN: Requirements Controls -->
+      <section class="lg:col-span-5 space-y-6">
+        
+        <!-- Budget Card -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              Бюджет сборки
+            </span>
+            <span id="DmitryBocharov31oib-budget-val" class="DmitryBocharov31oib-font-display text-2xl font-bold text-cyan-400">
+              150 000 ₽
+            </span>
+          </div>
+
+          <input 
+            type="range" 
+            id="DmitryBocharov31oib-input-budget" 
+            class="DmitryBocharov31oib-slider mb-3" 
+            min="45000" 
+            max="450000" 
+            step="5000" 
+            value="150000"
+            oninput="DmitryBocharov31oib_handleBudgetChange(this.value)"
+          >
+
+          <div class="flex justify-between text-[11px] text-slate-500 font-medium">
+            <span>45 000 ₽</span>
+            <span>150 000 ₽</span>
+            <span>280 000 ₽</span>
+            <span>450 000+ ₽</span>
+          </div>
+        </div>
+
+        <!-- Purpose / Workload -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6">
+          <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            Основная задача
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="DmitryBocharov31oib-purpose-group">
+            <!-- Dynamically Rendered -->
+          </div>
+        </div>
+
+        <!-- Target Resolution -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6">
+          <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+            Целевое разрешение
+          </label>
+          <div class="grid grid-cols-3 gap-2" id="DmitryBocharov31oib-resolution-group">
+            <!-- Dynamically Rendered -->
+          </div>
+        </div>
+
+        <!-- System Architecture & Priorities -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6 space-y-5">
+          <!-- Priority Focus -->
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center gap-2">
+              <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+              Инженерный приоритет
+            </label>
+            <div class="grid grid-cols-2 gap-2" id="DmitryBocharov31oib-priority-group">
+              <!-- Dynamically Rendered -->
+            </div>
+          </div>
+
+          <!-- Vendor Preference -->
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2 flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+              Платформа & вендоры
+            </label>
+            <div class="grid grid-cols-2 gap-2" id="DmitryBocharov31oib-vendor-group">
+              <!-- Dynamically Rendered -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Generated Configuration & Analytics -->
+      <section class="lg:col-span-7 space-y-6">
+        
+        <!-- Summary Stats Card -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6 border-cyan-500/20 bg-gradient-to-br from-cyan-950/20 via-transparent to-purple-950/20">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-white/5 gap-4">
+            <div>
+              <div class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Итоговая смета сборки</div>
+              <div class="flex items-baseline gap-3 mt-1">
+                <span id="DmitryBocharov31oib-total-price" class="DmitryBocharov31oib-font-display text-3xl sm:text-4xl font-extrabold text-white">
+                  0 ₽
+                </span>
+                <span id="DmitryBocharov31oib-price-delta" class="text-xs px-2 py-0.5 rounded font-medium bg-white/5 text-slate-300">
+                  В рамках бюджета
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="DmitryBocharov31oib_copySpec()" class="DmitryBocharov31oib-btn px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 transition-all flex items-center gap-1.5 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                Копировать
+              </button>
+              <button onclick="DmitryBocharov31oib_exportTxt()" class="DmitryBocharov31oib-btn px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-semibold text-cyan-300 transition-all flex items-center gap-1.5 active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Экспорт .TXT
+              </button>
+            </div>
+          </div>
+
+          <!-- Technical Metrics Grid -->
+          <div class="grid grid-cols-3 gap-3 pt-5">
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="text-[11px] text-slate-400 font-medium">Энергопотребление</div>
+              <div class="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-1 mt-0.5" id="DmitryBocharov31oib-stat-power">
+                550W <span class="text-[10px] text-slate-500 font-normal">/ TDP</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="text-[11px] text-slate-400 font-medium">Баланс CPU/GPU</div>
+              <div class="text-base sm:text-lg font-bold text-emerald-400 flex items-center gap-1 mt-0.5" id="DmitryBocharov31oib-stat-balance">
+                100% <span class="text-[10px] text-emerald-600 font-normal">Оптимал</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <div class="text-[11px] text-slate-400 font-medium">Шум и охлаждение</div>
+              <div class="text-base sm:text-lg font-bold text-sky-400 flex items-center gap-1 mt-0.5" id="DmitryBocharov31oib-stat-acoustic">
+                Тихий <span class="text-[10px] text-sky-600 font-normal">~26дБ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Benchmarks Grid -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Расчетный FPS в играх и нагрузках (<span id="DmitryBocharov31oib-bench-res-label" class="text-cyan-300">1440p High/Ultra</span>)
+            </h3>
+            <span class="text-[11px] text-slate-500 font-mono">DX12 / Vulkan</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="DmitryBocharov31oib-fps-container">
+            <!-- Dynamically populated FPS cards -->
+          </div>
+        </div>
+
+        <!-- Parts Specification List with Component Swapping -->
+        <div class="DmitryBocharov31oib-glass DmitryBocharov31oib-card rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              Спецификация компонентов
+            </h3>
+            <span class="text-xs text-slate-500">Нажмите на компонент для замены</span>
+          </div>
+
+          <div class="space-y-2.5" id="DmitryBocharov31oib-components-list">
+            <!-- Dynamically Rendered Components -->
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Modal for Component Swapping -->
+  <div id="DmitryBocharov31oib-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
+    <div class="DmitryBocharov31oib-glass rounded-2xl w-full max-w-xl p-6 border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-4 border-b border-white/10">
+        <div>
+          <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest" id="DmitryBocharov31oib-modal-category">CPU</span>
+          <h3 class="text-lg font-bold text-white">Выбор альтернативы</h3>
+        </div>
+        <button onclick="DmitryBocharov31oib_closeModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto py-4 space-y-2 flex-1 pr-1" id="DmitryBocharov31oib-modal-items">
+        <!-- Rendered via JS -->
+      </div>
+      
+      <div class="pt-3 border-t border-white/10 text-right">
+        <button onclick="DmitryBocharov31oib_closeModal()" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 transition">
+          Отмена
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="DmitryBocharov31oib-toast" class="fixed bottom-6 right-6 z-50 DmitryBocharov31oib-glass px-5 py-3 rounded-xl border border-cyan-500/40 shadow-2xl flex items-center gap-3 text-xs text-white">
+    <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
+    <span id="DmitryBocharov31oib-toast-text">Конфигурация скопирована в буфер</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="DmitryBocharov31oib-footer border-t border-white/5 bg-[#040508] py-12 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        
+        <!-- Brand & Details -->
+        <div class="text-center md:text-left space-y-1">
+          <div class="DmitryBocharov31oib-font-display text-sm font-bold tracking-wider text-slate-300">
+            AEROCORE PC ARCHITECT
+          </div>
+          <p class="text-xs text-slate-500">
+            Специализированный высокоточный конфигуратор игровых, рабочих и расчетных систем.
+          </p>
+        </div>
+
+        <!-- Required Author Signature -->
+        <div class="text-center md:text-right">
+          <div class="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-1">
+            Архитектор платформы
+          </div>
+          <div class="text-sm font-bold text-white tracking-wide">
+            Разработано: <span class="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">Дмитрий Бочаров (DmitryBocharov31oib)</span>
+          </div>
+          <div class="text-[11px] text-slate-500 font-mono mt-0.5">
+            DmitryBocharov31oib Engine v3.14 &bull; 2026 Production Ready
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Logic & Engine -->
+  <script>
+    /*
+     * AEROCORE PC BUILDER ENGINE
+     * Author: Дмитрий Бочаров (DmitryBocharov31oib)
+     */
+
+    // --- База комплектующих (компонентов) с ценами, характеристиками и TDP ---
+    const DmitryBocharov31oib_DB = {
+      cpu: [
+        { id: 'c1', name: 'Intel Core i3-14100F', brand: 'intel', price: 9500, tdp: 65, powerRating: 40, tier: 1, cores: '4C/8T 4.7GHz' },
+        { id: 'c2', name: 'AMD Ryzen 5 5600', brand: 'amd', price: 10800, tdp: 65, powerRating: 45, tier: 1, cores: '6C/12T 4.4GHz' },
+        { id: 'c3', name: 'AMD Ryzen 5 7500F', brand: 'amd', price: 14900, tdp: 65, powerRating: 65, tier: 2, cores: '6C/12T 5.0GHz DDR5' },
+        { id: 'c4', name: 'Intel Core i5-14400F', brand: 'intel', price: 18500, tdp: 65, powerRating: 63, tier: 2, cores: '10C/16T 4.7GHz' },
+        { id: 'c5', name: 'AMD Ryzen 5 7600X', brand: 'amd', price: 19800, tdp: 105, powerRating: 72, tier: 3, cores: '6C/12T 5.3GHz' },
+        { id: 'c6', name: 'Intel Core i5-14600KF', brand: 'intel', price: 28500, tdp: 125, powerRating: 84, tier: 3, cores: '14C/20T 5.3GHz' },
+        { id: 'c7', name: 'AMD Ryzen 7 7800X3D', brand: 'amd', price: 44000, tdp: 120, powerRating: 98, tier: 4, cores: '8C/16T 3D V-Cache (Gaming King)' },
+        { id: 'c8', name: 'Intel Core i7-14700KF', brand: 'intel', price: 41000, tdp: 250, powerRating: 94, tier: 4, cores: '20C/28T 5.6GHz' },
+        { id: 'c9', name: 'AMD Ryzen 9 7950X', brand: 'amd', price: 58000, tdp: 170, powerRating: 99, tier: 5, cores: '16C/32T 5.7GHz Workstation' },
+        { id: 'c10', name: 'Intel Core i9-14900KF', brand: 'intel', price: 59500, tdp: 253, powerRating: 100, tier: 5, cores: '24C/32T 6.0GHz Ultra' }
+      ],
+      gpu: [
+        { id: 'g1', name: 'NVIDIA GeForce RTX 3050 6GB', brand: 'nvidia', price: 19500, tdp: 70, tier: 1, vram: '6GB GDDR6', score1080p: 45, score1440p: 28, score4k: 14 },
+        { id: 'g2', name: 'AMD Radeon RX 6600 8GB', brand: 'amd', price: 23500, tdp: 132, tier: 1, vram: '8GB GDDR6', score1080p: 68, score1440p: 44, score4k: 22 },
+        { id: 'g3', name: 'NVIDIA GeForce RTX 4060 8GB', brand: 'nvidia', price: 34500, tdp: 115, tier: 2, vram: '8GB GDDR6 DLSS 3', score1080p: 95, score1440p: 65, score4k: 35 },
+        { id: 'g4', name: 'AMD Radeon RX 7600 XT 16GB', brand: 'amd', price: 38000, tdp: 190, tier: 2, vram: '16GB GDDR6', score1080p: 98, score1440p: 68, score4k: 36 },
+        { id: 'g5', name: 'NVIDIA GeForce RTX 4060 Ti 8GB', brand: 'nvidia', price: 44500, tdp: 160, tier: 3, vram: '8GB GDDR6', score1080p: 115, score1440p: 80, score4k: 42 },
+        { id: 'g6', name: 'AMD Radeon RX 7700 XT 12GB', brand: 'amd', price: 49500, tdp: 245, tier: 3, vram: '12GB GDDR6', score1080p: 125, score1440p: 92, score4k: 49 },
+        { id: 'g7', name: 'NVIDIA GeForce RTX 4070 Super 12GB', brand: 'nvidia', price: 68000, tdp: 220, tier: 4, vram: '12GB GDDR6X', score1080p: 160, score1440p: 120, score4k: 72 },
+        { id: 'g8', name: 'AMD Radeon RX 7800 XT 16GB', brand: 'amd', price: 58000, tdp: 263, tier: 4, vram: '16GB GDDR6', score1080p: 155, score1440p: 115, score4k: 66 },
+        { id: 'g9', name: 'NVIDIA GeForce RTX 4070 Ti Super 16GB', brand: 'nvidia', price: 89000, tdp: 285, tier: 4, vram: '16GB GDDR6X', score1080p: 185, score1440p: 145, score4k: 90 },
+        { id: 'g10', name: 'NVIDIA GeForce RTX 4080 Super 16GB', brand: 'nvidia', price: 118000, tdp: 320, tier: 5, vram: '16GB GDDR6X', score1080p: 215, score1440p: 175, score4k: 118 },
+        { id: 'g11', name: 'AMD Radeon RX 7900 XTX 24GB', brand: 'amd', price: 112000, tdp: 355, tier: 5, vram: '24GB GDDR6', score1080p: 218, score1440p: 172, score4k: 115 },
+        { id: 'g12', name: 'NVIDIA GeForce RTX 4090 24GB', brand: 'nvidia', price: 219000, tdp: 450, tier: 5, vram: '24GB GDDR6X Apex', score1080p: 240, score1440p: 220, score4k: 165 }
+      ],
+      motherboard: [
+        { id: 'm1', name: 'MSI PRO H610M-E / A520M', price: 6800, tier: 1, chipset: 'Entry Micro-ATX' },
+        { id: 'm2', name: 'ASSRock B650M-HDV/M.2 DDR5', price: 12500, tier: 2, chipset: 'AMD B650 PCIe 5.0' },
+        { id: 'm3', name: 'MSI B760 GAMING PLUS WIFI', price: 16200, tier: 3, chipset: 'Intel B760 DDR5 Wi-Fi 6E' },
+        { id: 'm4', name: 'GIGABYTE B650 AORUS ELITE AX', price: 21900, tier: 4, chipset: 'AMD B650 High-End VRM' },
+        { id: 'm5', name: 'ASUS ROG STRIX Z790-F GAMING', price: 39500, tier: 5, chipset: 'Intel Z790 Extreme OC' },
+        { id: 'm6', name: 'ASUS ROG CROSSHAIR X670E HERO', price: 54000, tier: 5, chipset: 'AMD X670E Heavy Flagship' }
+      ],
+      ram: [
+        { id: 'r1', name: '16GB (2x8) DDR4 3200MHz CL16 G.Skill', price: 4200, tier: 1 },
+        { id: 'r2', name: '32GB (2x16) DDR4 3600MHz CL18 Kingston', price: 7800, tier: 2 },
+        { id: 'r3', name: '32GB (2x16) DDR5 6000MHz CL30 Kingston Fury', price: 13500, tier: 3 },
+        { id: 'r4', name: '64GB (2x32) DDR5 6000MHz CL30 Corsair Vengeance', price: 24500, tier: 4 },
+        { id: 'r5', name: '96GB (2x48) DDR5 6400MHz CL32 G.Skill Trident Z5', price: 42000, tier: 5 }
+      ],
+      storage: [
+        { id: 's1', name: '512GB Kingston NV2 M.2 NVMe (3500 MB/s)', price: 4100, tier: 1 },
+        { id: 's2', name: '1TB Kingston KC3000 PCIe 4.0 (7000 MB/s)', price: 8900, tier: 2 },
+        { id: 's3', name: '2TB Samsung 990 PRO PCIe 4.0 (7450 MB/s)', price: 18500, tier: 3 },
+        { id: 's4', name: '4TB Lexar NM790 NVMe (7400 MB/s)', price: 31000, tier: 4 },
+        { id: 's5', name: '4TB Samsung 990 PRO + 4TB WD Black RAID', price: 62000, tier: 5 }
+      ],
+      cooler: [
+        { id: 'cl1', name: 'ID-COOLING SE-214-XT Basic (180W)', price: 1900, tier: 1, type: 'Кулер' },
+        { id: 'cl2', name: 'DeepCool AK400 Digital (220W)', price: 3800, tier: 2, type: 'Кулер' },
+        { id: 'cl3', name: 'Thermalright Peerless Assassin 120 SE', price: 5200, tier: 3, type: 'Суперкулер 265W' },
+        { id: 'cl4', name: 'DeepCool LT720 360mm ARGB AIO', price: 12500, tier: 4, type: 'СЖО 360мм' },
+        { id: 'cl5', name: 'NZXT Kraken Elite 360 RGB LCD', price: 29500, tier: 5, type: 'Флагман СЖО с дисплеем' }
+      ],
+      psu: [
+        { id: 'p1', name: '550W DeepCool PK550D Bronze', price: 4300, watts: 550, tier: 1 },
+        { id: 'p2', name: '650W Montech Century Gold', price: 7900, watts: 650, tier: 2 },
+        { id: 'p3', name: '750W DeepCool PQ750M 80+ Gold Mod.', price: 11200, watts: 750, tier: 3 },
+        { id: 'p4', name: '850W be quiet! Pure Power 12 M ATX 3.0', price: 16500, watts: 850, tier: 4 },
+        { id: 'p5', name: '1000W Corsair RM1000e ATX 3.0 Gold', price: 22500, watts: 1000, tier: 5 },
+        { id: 'p6', name: '1200W ASUS ROG THOR Platinum II', price: 37000, watts: 1200, tier: 5 }
+      ],
+      case: [
+        { id: 'cs1', name: 'AeroCool Quantum v2 Mesh (3x Fan)', price: 3900, tier: 1 },
+        { id: 'cs2', name: 'DeepCool CC560 V2 ARGB (4x Fan)', price: 5800, tier: 2 },
+        { id: 'cs3', name: 'Montech Sky Two Glass Dual Chamber', price: 9800, tier: 3 },
+        { id: 'cs4', name: 'Lian Li LANCOOL III Black Mesh', price: 17500, tier: 4 },
+        { id: 'cs5', name: 'Lian Li O11 Dynamic EVO XL Soundless', price: 26000, tier: 5 }
+      ]
+    };
+
+    // --- Параметры формы конфигуратора ---
+    const DmitryBocharov31oib_state = {
+      budget: 150000,
+      purpose: 'gaming',       // gaming, workstation, streaming, ai_ml, office
+      resolution: '1440p',     // 1080p, 1440p, 4k
+      priority: 'max_fps',     // max_fps, silent, rgb, compact
+      vendor: 'auto',          // auto, nvidia, amd, intel
+      customSelection: {}      // Переопределенные пользователем компоненты
+    };
+
+    // Опции конфигуратора
+    const DmitryBocharov31oib_purposes = [
+      { id: 'gaming', label: 'Гейминг (AAA & Esport)', desc: 'Максимум FPS, DLSS, Ray-Tracing' },
+      { id: 'workstation', label: '3D & Видеомонтаж', desc: 'Упор на CPU, RAM 32-64GB и NVMe' },
+      { id: 'streaming', label: 'Стриминг и Контент', desc: 'Аппаратный энкодер NVENC, AV1' },
+      { id: 'ai_ml', label: 'Нейросети & LLM / ML', desc: 'Приоритет VRAM 16GB+ и CUDA' },
+      { id: 'office', label: 'Универсальный / Офис', desc: 'Тишина, надежность и энергоэффективность' }
+    ];
+
+    const DmitryBocharov31oib_resolutions = [
+      { id: '1080p', label: 'Full HD (1080p)', sub: '1920×1080' },
+      { id: '1440p', label: '2K QHD (1440p)', sub: '2560×1440' },
+      { id: '4k', label: '4K UHD (2160p)', sub: '3840×2160' }
+    ];
+
+    const DmitryBocharov31oib_priorities = [
+      { id: 'max_fps', label: 'Макс. FPS на 1₽' },
+      { id: 'silent', label: 'Тишина и низкий TDP' },
+      { id: 'rgb', label: 'ARGB Эстетика' },
+      { id: 'compact', label: 'Компактность mATX' }
+    ];
+
+    const DmitryBocharov31oib_vendors = [
+      { id: 'auto', label: 'Лучшее за бюджет' },
+      { id: 'nvidia', label: 'NVIDIA Only (GPU)' },
+      { id: 'amd', label: 'AMD All-Round' },
+      { id: 'intel', label: 'Intel CPU' }
+    ];
+
+    // --- Рендеринг кнопок фильтров ---
+    function DmitryBocharov31oib_initUI() {
+      // 1. Назначение
+      const pContainer = document.getElementById('DmitryBocharov31oib-purpose-group');
+      pContainer.innerHTML = DmitryBocharov31oib_purposes.map(p => `
+        <button 
+          onclick="DmitryBocharov31oib_setOption('purpose', '${p.id}')"
+          class="p-3 rounded-xl text-left border transition-all DmitryBocharov31oib-btn ${
+            DmitryBocharov31oib_state.purpose === p.id 
+              ? 'bg-cyan-500/15 border-cyan-400 text-white DmitryBocharov31oib-glass-active' 
+              : 'bg-white/[0.02] border-white/5 text-slate-300 hover:border-white/20'
+          }">
+          <div class="text-xs font-semibold">${p.label}</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">${p.desc}</div>
+        </button>
+      `).join('');
+
+      // 2. Разрешение
+      const rContainer = document.getElementById('DmitryBocharov31oib-resolution-group');
+      rContainer.innerHTML = DmitryBocharov31oib_resolutions.map(r => `
+        <button 
+          onclick="DmitryBocharov31oib_setOption('resolution', '${r.id}')"
+          class="p-2.5 rounded-xl text-center border transition-all DmitryBocharov31oib-btn ${
+            DmitryBocharov31oib_state.resolution === r.id 
+              ? 'bg-cyan-500/15 border-cyan-400 text-white DmitryBocharov31oib-glass-active' 
+              : 'bg-white/[0.02] border-white/5 text-slate-300 hover:border-white/20'
+          }">
+          <div class="text-xs font-bold">${r.label}</div>
+          <div class="text-[10px] text-slate-400">${r.sub}</div>
+        </button>
+      `).join('');
+
+      // 3. Приоритеты
+      const prContainer = document.getElementById('DmitryBocharov31oib-priority-group');
+      prContainer.innerHTML = DmitryBocharov31oib_priorities.map(pr => `
+        <button 
+          onclick="DmitryBocharov31oib_setOption('priority', '${pr.id}')"
+          class="p-2 rounded-xl text-left border text-xs font-medium transition-all DmitryBocharov31oib-btn ${
+            DmitryBocharov31oib_state.priority === pr.id 
+              ? 'bg-indigo-500/20 border-indigo-400 text-white' 
+              : 'bg-white/[0.02] border-white/5 text-slate-300 hover:border-white/20'
+          }">
+          ${pr.label}
+        </button>
+      `).join('');
+
+      // 4. Вендоры
+      const vContainer = document.getElementById('DmitryBocharov31oib-vendor-group');
+      vContainer.innerHTML = DmitryBocharov31oib_vendors.map(v => `
+        <button 
+          onclick="DmitryBocharov31oib_setOption('vendor', '${v.id}')"
+          class="p-2 rounded-xl text-left border text-xs font-medium transition-all DmitryBocharov31oib-btn ${
+            DmitryBocharov31oib_state.vendor === v.id 
+              ? 'bg-cyan-500/20 border-cyan-400 text-white' 
+              : 'bg-white/[0.02] border-white/5 text-slate-300 hover:border-white/20'
+          }">
+          ${v.label}
+        </button>
+      `).join('');
+
+      // Пересчёт сборки
+      DmitryBocharov31oib_recalculate();
+    }
+
+    function DmitryBocharov31oib_setOption(key, val) {
+      DmitryBocharov31oib_state[key] = val;
+      DmitryBocharov31oib_state.customSelection = {}; // сброс кастомных компонентов при смене базовых требований
+      DmitryBocharov31oib_initUI();
+    }
+
+    function DmitryBocharov31oib_handleBudgetChange(val) {
+      DmitryBocharov31oib_state.budget = parseInt(val, 10);
+      document.getElementById('DmitryBocharov31oib-budget-val').innerText = DmitryBocharov31oib_formatPrice(DmitryBocharov31oib_state.budget);
+      DmitryBocharov31oib_state.customSelection = {};
+      DmitryBocharov31oib_recalculate();
+    }
+
+    function DmitryBocharov31oib_formatPrice(num) {
+      return num.toLocaleString('ru-RU') + ' ₽';
+    }
+
+    // --- Алгоритм выбора компонентов под баланс ---
+    function DmitryBocharov31oib_pickBalancedBuild() {
+      const b = DmitryBocharov31oib_state.budget;
+      const purpose = DmitryBocharov31oib_state.purpose;
+      const vendor = DmitryBocharov31oib_state.vendor;
+      const res = DmitryBocharov31oib_state.resolution;
+
+      // Определение тира бюджета от 1 до 5
+      let tier = 1;
+      if (b >= 80000) tier = 2;
+      if (b >= 135000) tier = 3;
+      if (b >= 210000) tier = 4;
+      if (b >= 330000) tier = 5;
+
+      // 1. Выбор GPU
+      let gpus = DmitryBocharov31oib_DB.gpu;
+      if (vendor === 'nvidia' || purpose === 'ai_ml') {
+        gpus = gpus.filter(g => g.brand === 'nvidia');
+      } else if (vendor === 'amd' && purpose !== 'ai_ml') {
+        gpus = gpus.filter(g => g.brand === 'amd');
+      }
+
+      // Если 4K - стремимся повысить тир видеокарты
+      let targetGpuTier = tier;
+      if (res === '4k' && tier < 5) targetGpuTier = Math.min(5, tier + 1);
+      if (purpose === 'workstation' && tier > 2) targetGpuTier = Math.max(1, tier - 1); // больше денег на CPU/RAM
+
+      let pickedGpu = gpus.filter(g => g.tier <= targetGpuTier).pop() || gpus[0];
+
+      // 2. Выбор CPU
+      let cpus = DmitryBocharov31oib_DB.cpu;
+      if (vendor === 'intel') {
+        cpus = cpus.filter(c => c.brand === 'intel');
+      } else if (vendor === 'amd') {
+        cpus = cpus.filter(c => c.brand === 'amd');
+      }
+
+      let targetCpuTier = tier;
+      if (purpose === 'workstation') targetCpuTier = Math.min(5, tier + 1);
+      let pickedCpu = cpus.filter(c => c.tier <= targetCpuTier).pop() || cpus[0];
+
+      // 3. Выбор Материнской платы
+      let moboTier = Math.min(pickedCpu.tier, 5);
+      let pickedMobo = DmitryBocharov31oib_DB.motherboard.filter(m => m.tier <= moboTier).pop() || DmitryBocharov31oib_DB.motherboard[0];
+
+      // 4. ОЗУ (RAM)
+      let ramTier = tier;
+      if (purpose === 'workstation' || purpose === 'ai_ml') ramTier = Math.min(5, tier + 1);
+      let pickedRam = DmitryBocharov31oib_DB.ram.filter(r => r.tier <= ramTier).pop() || DmitryBocharov31oib_DB.ram[0];
+
+      // 5. Накопитель SSD
+      let ssdTier = tier >= 3 ? (purpose === 'workstation' ? 4 : 3) : tier;
+      let pickedStorage = DmitryBocharov31oib_DB.storage.filter(s => s.tier <= ssdTier).pop() || DmitryBocharov31oib_DB.storage[0];
+
+      // 6. Охлаждение
+      let coolerTier = pickedCpu.tdp > 150 ? Math.max(4, tier) : (pickedCpu.tdp > 100 ? 3 : 2);
+      if (DmitryBocharov31oib_state.priority === 'silent') coolerTier = Math.min(5, coolerTier + 1);
+      let pickedCooler = DmitryBocharov31oib_DB.cooler.filter(cl => cl.tier <= coolerTier).pop() || DmitryBocharov31oib_DB.cooler[0];
+
+      // 7. Блок питания (расчет мощности с запасом 35%)
+      const totalEstimatedWattage = (pickedCpu.tdp + pickedGpu.tdp + 100) * 1.35;
+      let pickedPsu = DmitryBocharov31oib_DB.psu.find(p => p.watts >= totalEstimatedWattage) || DmitryBocharov31oib_DB.psu[DmitryBocharov31oib_DB.psu.length - 1];
+
+      // 8. Корпус
+      let caseTier = Math.min(tier, 5);
+      if (DmitryBocharov31oib_state.priority === 'rgb') caseTier = Math.max(3, caseTier);
+      let pickedCase = DmitryBocharov31oib_DB.case.filter(cs => cs.tier <= caseTier).pop() || DmitryBocharov31oib_DB.case[0];
+
+      return {
+        cpu: pickedCpu,
+        gpu: pickedGpu,
+        motherboard: pickedMobo,
+        ram: pickedRam,
+        storage: pickedStorage,
+        cooler: pickedCooler,
+        psu: pickedPsu,
+        case: pickedCase
+      };
+    }
+
+    // --- Пересчет параметров, цен и UI ---
+    let currentConfig = {};
+
+    function DmitryBocharov31oib_recalculate() {
+      const autoBuild = DmitryBocharov31oib_pickBalancedBuild();
+
+      // Применяем пользовательские замены
+      currentConfig = {
+        cpu: DmitryBocharov31oib_state.customSelection.cpu || autoBuild.cpu,
+        gpu: DmitryBocharov31oib_state.customSelection.gpu || autoBuild.gpu,
+        motherboard: DmitryBocharov31oib_state.customSelection.motherboard || autoBuild.motherboard,
+        ram: DmitryBocharov31oib_state.customSelection.ram || autoBuild.ram,
+        storage: DmitryBocharov31oib_state.customSelection.storage || autoBuild.storage,
+        cooler: DmitryBocharov31oib_state.customSelection.cooler || autoBuild.cooler,
+        psu: DmitryBocharov31oib_state.customSelection.psu || autoBuild.psu,
+        case: DmitryBocharov31oib_state.customSelection.case || autoBuild.case
+      };
+
+      // Расчет цены
+      const totalPrice = Object.values(currentConfig).reduce((sum, item) => sum + item.price, 0);
+      document.getElementById('DmitryBocharov31oib-total-price').innerText = DmitryBocharov31oib_formatPrice(totalPrice);
+
+      // Дельта с бюджетом
+      const delta = totalPrice - DmitryBocharov31oib_state.budget;
+      const deltaEl = document.getElementById('DmitryBocharov31oib-price-delta');
+      if (Math.abs(delta) <= 5000) {
+        deltaEl.innerText = 'В рамках бюджета';
+        deltaEl.className = 'text-xs px-2 py-0.5 rounded font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      } else if (delta < 0) {
+        deltaEl.innerText = `Экономия: ${DmitryBocharov31oib_formatPrice(Math.abs(delta))}`;
+        deltaEl.className = 'text-xs px-2 py-0.5 rounded font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20';
+      } else {
+        deltaEl.innerText = `Превышение: +${DmitryBocharov31oib_formatPrice(delta)}`;
+        deltaEl.className = 'text-xs px-2 py-0.5 rounded font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20';
+      }
+
+      // Энергопотребление
+      const sysTdp = currentConfig.cpu.tdp + currentConfig.gpu.tdp + 75;
+      document.getElementById('DmitryBocharov31oib-stat-power').innerHTML = `
+        ${sysTdp}W <span class="text-[10px] text-slate-500 font-normal">/ БП ${currentConfig.psu.watts}W</span>
+      `;
+
+      // Акустика
+      let acoustic = 'Тихий (~25 дБ)';
+      if (currentConfig.cooler.tier >= 4) acoustic = 'Сверхтихий (СЖО)';
+      if (currentConfig.cpu.tdp > 200 && currentConfig.cooler.tier <= 2) acoustic = 'Шум под нагрузкой';
+      document.getElementById('DmitryBocharov31oib-stat-acoustic').innerHTML = `
+        ${acoustic}
+      `;
+
+      // Баланс / Bottleneck
+      const tierDiff = Math.abs(currentConfig.cpu.tier - currentConfig.gpu.tier);
+      const balanceEl = document.getElementById('DmitryBocharov31oib-stat-balance');
+      if (tierDiff <= 1) {
+        balanceEl.innerHTML = `100% <span class="text-[10px] text-emerald-500 font-normal">Оптимал</span>`;
+        balanceEl.className = 'text-base sm:text-lg font-bold text-emerald-400 flex items-center gap-1 mt-0.5';
+      } else if (tierDiff === 2) {
+        balanceEl.innerHTML = `91% <span class="text-[10px] text-amber-500 font-normal">Допустимо</span>`;
+        balanceEl.className = 'text-base sm:text-lg font-bold text-amber-400 flex items-center gap-1 mt-0.5';
+      } else {
+        balanceEl.innerHTML = `78% <span class="text-[10px] text-rose-500 font-normal">Bottleneck</span>`;
+        balanceEl.className = 'text-base sm:text-lg font-bold text-rose-400 flex items-center gap-1 mt-0.5';
+      }
+
+      // Обновление FPS карточек
+      DmitryBocharov31oib_renderBenchmarks();
+
+      // Список компонентов
+      DmitryBocharov31oib_renderComponentsList();
+    }
+
+    // --- Рендеринг карточек FPS ---
+    function DmitryBocharov31oib_renderBenchmarks() {
+      const res = DmitryBocharov31oib_state.resolution;
+      const gpu = currentConfig.gpu;
+      
+      let score = gpu.score1440p;
+      let resLabel = '1440p 2K (Ultra)';
+      if (res === '1080p') {
+        score = gpu.score1080p;
+        resLabel = '1080p FHD (Max)';
+      } else if (res === '4k') {
+        score = gpu.score4k;
+        resLabel = '4K UHD (DLSS/FSR)';
+      }
+
+      document.getElementById('DmitryBocharov31oib-bench-res-label').innerText = resLabel;
+
+      const games = [
+        { name: 'Cyberpunk 2077', mult: 0.62, icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+        { name: 'CS2 (Esports)', mult: 2.1, icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
+        { name: 'Alan Wake 2', mult: 0.48, icon: 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z' },
+        { name: 'Blender 3D Render', mult: 'score', icon: 'M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z' }
+      ];
+
+      const c = document.getElementById('DmitryBocharov31oib-fps-container');
+      c.innerHTML = games.map(g => {
+        let valDisplay = '';
+        let badgeColor = 'text-cyan-400';
+        if (g.mult === 'score') {
+          const blenderScore = Math.round((currentConfig.cpu.powerRating * 18) + (gpu.tier * 250));
+          valDisplay = `${blenderScore} <span class="text-xs font-normal text-slate-400">pts</span>`;
+          badgeColor = 'text-indigo-400';
+        } else {
+          const fps = Math.round(score * g.mult);
+          valDisplay = `${fps} <span class="text-xs font-normal text-slate-400">FPS</span>`;
+          if (fps < 45) badgeColor = 'text-amber-400';
+          if (fps >= 60) badgeColor = 'text-cyan-400';
+          if (fps >= 120) badgeColor = 'text-emerald-400';
+        }
+
+        return `
+          <div class="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-400 mb-2">
+              <span class="text-[11px] font-medium truncate">${g.name}</span>
+              <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${g.icon}"/></svg>
+            </div>
+            <div class="DmitryBocharov31oib-font-display text-lg sm:text-xl font-bold ${badgeColor}">
+              ${valDisplay}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- Рендеринг таблицы компонентов ---
+    const DmitryBocharov31oib_labels = {
+      cpu: { title: 'Процессор (CPU)', icon: 'M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z' },
+      gpu: { title: 'Видеокарта (GPU)', icon: 'M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2' },
+      motherboard: { title: 'Материнская плата', icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z' },
+      ram: { title: 'Оперативная память (RAM)', icon: 'M8 9l4-4 4 4m0 6l-4 4-4-4' },
+      storage: { title: 'Накопитель (SSD NVMe)', icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4' },
+      cooler: { title: 'Охлаждение CPU', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+      psu: { title: 'Блок питания (PSU)', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+      case: { title: 'Корпус (Case)', icon: 'M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z' }
+    };
+
+    function DmitryBocharov31oib_renderComponentsList() {
+      const container = document.getElementById('DmitryBocharov31oib-components-list');
+      container.innerHTML = Object.keys(DmitryBocharov31oib_labels).map(key => {
+        const item = currentConfig[key];
+        const meta = DmitryBocharov31oib_labels[key];
+
+        return `
+          <div 
+            onclick="DmitryBocharov31oib_openModal('${key}')"
+            class="group cursor-pointer p-3 sm:p-3.5 rounded-xl bg-white/[0.015] hover:bg-white/[0.04] border border-white/5 hover:border-cyan-500/30 transition-all flex items-center justify-between gap-3 DmitryBocharov31oib-card">
+            
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-cyan-400 group-hover:bg-cyan-500/10 transition-colors shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${meta.icon}"/></svg>
+              </div>
+              <div class="min-w-0">
+                <div class="text-[11px] text-slate-400 font-medium">${meta.title}</div>
+                <div class="text-xs sm:text-sm font-semibold text-slate-200 truncate group-hover:text-white transition-colors">${item.name}</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="text-xs sm:text-sm font-bold text-slate-300">${DmitryBocharov31oib_formatPrice(item.price)}</span>
+              <div class="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-cyan-400 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- Модальное окно замены компонента ---
+    let activeCategoryModal = null;
+
+    function DmitryBocharov31oib_openModal(categoryKey) {
+      activeCategoryModal = categoryKey;
+      const modal = document.getElementById('DmitryBocharov31oib-modal');
+      const catLabel = document.getElementById('DmitryBocharov31oib-modal-category');
+      const itemsContainer = document.getElementById('DmitryBocharov31oib-modal-items');
+
+      catLabel.innerText = DmitryBocharov31oib_labels[categoryKey].title;
+      const list = DmitryBocharov31oib_DB[categoryKey] || [];
+      const currentSelected = currentConfig[categoryKey];
+
+      itemsContainer.innerHTML = list.map(item => {
+        const isSelected = item.id === currentSelected.id;
+        return `
+          <div 
+            onclick="DmitryBocharov31oib_selectComponent('${categoryKey}', '${item.id}')"
+            class="p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+              isSelected 
+                ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-[0_0_15px_rgba(0,240,255,0.1)]' 
+                : 'bg-white/[0.02] border-white/5 hover:border-white/20 text-slate-300'
+            }">
+            <div>
+              <div class="text-xs font-semibold">${item.name}</div>
+              <div class="text-[10px] text-slate-400">${item.cores || item.vram || item.chipset || item.type || (item.watts ? item.watts + 'W' : '') || ''}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-bold text-cyan-300">${DmitryBocharov31oib_formatPrice(item.price)}</div>
+              ${isSelected ? '<span class="text-[9px] uppercase tracking-wider text-cyan-400 font-bold">Выбрано</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+      }, 10);
+    }
+
+    function DmitryBocharov31oib_selectComponent(catKey, itemId) {
+      const item = DmitryBocharov31oib_DB[catKey].find(x => x.id === itemId);
+      if (item) {
+        DmitryBocharov31oib_state.customSelection[catKey] = item;
+        DmitryBocharov31oib_recalculate();
+        DmitryBocharov31oib_showToast(`Установлено: ${item.name}`);
+      }
+      DmitryBocharov31oib_closeModal();
+    }
+
+    function DmitryBocharov31oib_closeModal() {
+      const modal = document.getElementById('DmitryBocharov31oib-modal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    // Закрытие модального окна по Escape или клику на фон
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') DmitryBocharov31oib_closeModal();
+    });
+
+    document.getElementById('DmitryBocharov31oib-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'DmitryBocharov31oib-modal') DmitryBocharov31oib_closeModal();
+    });
+
+    // --- Тост уведомление ---
+    function DmitryBocharov31oib_showToast(msg) {
+      const toast = document.getElementById('DmitryBocharov31oib-toast');
+      const text = document.getElementById('DmitryBocharov31oib-toast-text');
+      text.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // --- Сброс конфигурации к базовой ---
+    function DmitryBocharov31oib_resetToDefaults() {
+      DmitryBocharov31oib_state.budget = 150000;
+      DmitryBocharov31oib_state.purpose = 'gaming';
+      DmitryBocharov31oib_state.resolution = '1440p';
+      DmitryBocharov31oib_state.priority = 'max_fps';
+      DmitryBocharov31oib_state.vendor = 'auto';
+      DmitryBocharov31oib_state.customSelection = {};
+
+      document.getElementById('DmitryBocharov31oib-input-budget').value = 150000;
+      document.getElementById('DmitryBocharov31oib-budget-val').innerText = '150 000 ₽';
+
+      DmitryBocharov31oib_initUI();
+      DmitryBocharov31oib_showToast('Конфигурация сброшена');
+    }
+
+    // --- Экспорт спецификации в буфер обмена ---
+    function DmitryBocharov31oib_getSpecString() {
+      const totalPrice = Object.values(currentConfig).reduce((sum, item) => sum + item.price, 0);
+      let out = `AEROCORE PC ARCHITECT — КОНФИГУРАЦИЯ ПК\n`;
+      out += `Автор сборщика: Дмитрий Бочаров (DmitryBocharov31oib)\n`;
+      out += `Цель: ${DmitryBocharov31oib_purposes.find(p=>p.id===DmitryBocharov31oib_state.purpose)?.label}\n`;
+      out += `Целевое разрешение: ${DmitryBocharov31oib_state.resolution.toUpperCase()}\n`;
+      out += `--------------------------------------------------\n`;
+      Object.keys(DmitryBocharov31oib_labels).forEach(key => {
+        const item = currentConfig[key];
+        out += `${DmitryBocharov31oib_labels[key].title}: ${item.name} — ${item.price.toLocaleString('ru-RU')} ₽\n`;
+      });
+      out += `--------------------------------------------------\n`;
+      out += `ИТОГОВАЯ СТОИМОСТЬ: ${totalPrice.toLocaleString('ru-RU')} ₽\n`;
+      out += `Расчетное энергопотребление: ~${currentConfig.cpu.tdp + currentConfig.gpu.tdp + 75} Вт\n`;
+      return out;
+    }
+
+    function DmitryBocharov31oib_copySpec() {
+      const text = DmitryBocharov31oib_getSpecString();
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        DmitryBocharov31oib_showToast('Спецификация скопирована в буфер обмена');
+      } catch (err) {
+        DmitryBocharov31oib_showToast('Ошибка копирования');
+      }
+      document.body.removeChild(ta);
+    }
+
+    // --- Экспорт в файл .TXT ---
+    function DmitryBocharov31oib_exportTxt() {
+      const text = DmitryBocharov31oib_getSpecString();
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PC_Build_DmitryBocharov31oib_${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      DmitryBocharov31oib_showToast('Файл .TXT успешно сохранен');
+    }
+
+    // Запуск при инициализации
+    window.onload = function() {
+      DmitryBocharov31oib_initUI();
+    };
+  </script>
+</body>
+</html>
